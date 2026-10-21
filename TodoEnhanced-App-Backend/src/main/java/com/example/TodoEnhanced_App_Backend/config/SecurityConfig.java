@@ -36,11 +36,12 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http){
-        http.csrf(customizer->customizer.disable()).authorizeHttpRequests(request-> request
+        http.csrf(customizer->customizer.disable())
+                .authorizeHttpRequests(request-> request
                 .requestMatchers("/register","/login")
                         .permitAll()
                 .requestMatchers("/api/admin/**").hasRole("Admin")
-                .requestMatchers("/api/todo/**").hasAllRoles("User","Admin")
+                .requestMatchers("/api/todos/**").hasAnyRole("User","Admin")
                         .anyRequest().authenticated());
         http.httpBasic(Customizer.withDefaults());
         http.sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

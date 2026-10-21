@@ -1,5 +1,6 @@
 package com.example.TodoEnhanced_App_Backend.exeption;
 
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -15,24 +16,36 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UserAlreadyExistsException.class)
     public ResponseEntity<Map<String, Object>> handleUserAlreadyExists(UserAlreadyExistsException ex) {
-        Map<String, Object> errorResponse = new HashMap<>();
-        errorResponse.put("timestamp", LocalDateTime.now());
-        errorResponse.put("status", HttpStatus.CONFLICT.value()); // 409 Status
-        errorResponse.put("message", ex.getMessage()); // Meaningful message sent to frontend
-
-        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+        return buildErrorResponse(HttpStatus.CONFLICT, ex.getMessage());
     }
 
-    @ExceptionHandler({UsernameNotFoundException.class, BadCredentialsException.class})
-    public ResponseEntity<Map<String,Object>> handleUserNotFound(RuntimeException ex){
-        Map<String, Object> errorResponse = new HashMap<>();
-        errorResponse.put("timestamp", LocalDateTime.now());
-        errorResponse.put("status", HttpStatus.UNAUTHORIZED.value());
-        errorResponse.put("message", "Invalid username or password");
-
-        return new ResponseEntity<>(errorResponse,HttpStatus.UNAUTHORIZED);
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<Map<String,Object>> handleUserNotFound(UsernameNotFoundException ex){
+        return buildErrorResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
     }
 
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<Map<String,Object>> handleUserNotFound(BadCredentialsException ex){
+        return buildErrorResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
+    }
+
+    @ExceptionHandler(IdentifierMismatchException.class)
+    public ResponseEntity<Map<String,Object>> IdentifierMismatchException(IdentifierMismatchException ex){
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<Map<String ,Object>> ExpiredJwtException (ExpiredJwtException ex){
+        return buildErrorResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
+    }
+
+    private ResponseEntity<Map<String,Object>> buildErrorResponse(HttpStatus status, String message){
+        Map<String,Object> error  = new HashMap<>();
+        error.put("timestamo",LocalDateTime.now());
+        error.put("status",status.value());
+        error.put("message", message);
+        return new ResponseEntity<>(error,status);
+    }
 
 
 }
