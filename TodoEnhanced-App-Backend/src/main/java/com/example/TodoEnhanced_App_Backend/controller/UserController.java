@@ -2,10 +2,12 @@ package com.example.TodoEnhanced_App_Backend.controller;
 
 
 import com.example.TodoEnhanced_App_Backend.exeption.UsernameNotFoundException;
+import com.example.TodoEnhanced_App_Backend.model.Role;
 import com.example.TodoEnhanced_App_Backend.model.User;
 import com.example.TodoEnhanced_App_Backend.model.UserPrincipal;
 import com.example.TodoEnhanced_App_Backend.model.dto.UserReqDto;
 import com.example.TodoEnhanced_App_Backend.model.dto.UserResponseDto;
+import com.example.TodoEnhanced_App_Backend.service.JwtService;
 import com.example.TodoEnhanced_App_Backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,6 +27,9 @@ public class UserController {
 
     @Autowired
     AuthenticationManager authenticationManager;
+
+    @Autowired
+    private JwtService jwtService;
 
 
 @PostMapping("register")
@@ -51,10 +56,16 @@ public class UserController {
 
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
 
+        String uname = userPrincipal.getUsername();
+        Role role = userPrincipal.getUser().getRole();
+
+
+        String JwtToken = jwtService.generateToken(userPrincipal.getUser().getId(),uname,role);
+
         UserResponseDto userResponseDto = UserResponseDto.builder()
-                .role(userPrincipal.getUser().getRole())
-                .userName(userPrincipal.getUsername())
-                .token("")
+                .role(role)
+                .userName(uname)
+                .token(JwtToken)
                 .message("Logging Success")
                 .build();
         return new  ResponseEntity<>(userResponseDto, HttpStatus.OK);
