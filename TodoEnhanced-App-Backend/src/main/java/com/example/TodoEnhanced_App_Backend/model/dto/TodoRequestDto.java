@@ -12,10 +12,6 @@ public class TodoRequestDto {
     @NotBlank(message = "Title cannot be blank")
     @Size(max = 150, message = "Title must be under 150 characters")
     private String title;
-
-    @NotBlank( message = "Authentication error")
-    private Integer userId;
-
     @NotBlank(message = "Content cannot be blank")
     private String content;
 

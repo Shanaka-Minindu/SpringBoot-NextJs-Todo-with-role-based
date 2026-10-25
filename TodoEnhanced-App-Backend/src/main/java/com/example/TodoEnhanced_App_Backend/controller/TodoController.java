@@ -29,14 +29,13 @@ public class TodoController {
     public ResponseEntity<ResponseDto> createTodo(@RequestBody TodoRequestDto todoRequest, @AuthenticationPrincipal UserPrincipal userPrincipal){
         User user= userPrincipal.getUser();
 
-        if(user.getId() != todoRequest.getUserId()){
-            throw new IdentifierMismatchException("User Credentials missed matched!");
-        }
+
 
         Todo todo = new Todo();
         todo.setTitle(todoRequest.getTitle());
         todo.setContent(todoRequest.getContent());
         todo.setUser(user);
+        todo.setDone(false);
         todo.setTargetDate(todoRequest.getDoDate());
 
         Todo addedTodo = todoService.craeteTodo(todo);
@@ -46,6 +45,7 @@ public class TodoController {
               .title(addedTodo.getTitle())
               .content(addedTodo.getContent())
               .doDate(addedTodo.getTargetDate())
+              .isDone(addedTodo.isDone())
               .build();
 
       return new ResponseEntity<>(responseDto, HttpStatus.OK);
@@ -63,6 +63,7 @@ public class TodoController {
                     .title(todo.getTitle())
                     .content(todo.getContent())
                     .doDate(todo.getTargetDate())
+                    .isDone(todo.isDone())
                     .build();
 
             repList.add(res);
@@ -77,5 +78,43 @@ public ResponseEntity<Void> deleteTodo(@PathVariable Integer todoId , @Authentic
         todoService.deleteTodo(todoId,user);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    @PutMapping({"/{todoId}"})
+    public ResponseEntity<ResponseDto> updateTodo(
+            @PathVariable Integer todoId,
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @RequestBody TodoRequestDto todoReq
+            ){
+        User user =userPrincipal.getUser();
+        Todo todo = new Todo();
+        todo.setId(todoId);
+        todo.setTitle(todoReq.getTitle());
+        todo.setContent(todoReq.getContent());
+        todo.setUser(user);
+        todo.setDone(false);
+        todo.setTargetDate(todoReq.getDoDate());
+        Todo newTodo = todoService.todoUpdate(todo);
+
+        ResponseDto res = ResponseDto.builder()
+                .todoId(newTodo.getId())
+                .title(newTodo.getTitle())
+                .doDate(newTodo.getTargetDate())
+                .content(newTodo.getContent())
+                .isDone(newTodo.isDone())
+                .build();
+
+        return new ResponseEntity<>(res,HttpStatus.OK);
+
+
+    }
+
+
+    @PostMapping("/isDone/{todoId}")
+    public ResponseEntity<Void> todoIsDone(@PathVariable Integer todoId, @AuthenticationPrincipal UserPrincipal userPrincipal){
+        System.out.println(todoId);
+            todoService.todoMarkDone(userPrincipal.getUser().getId(),todoId);
+            return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 }
 

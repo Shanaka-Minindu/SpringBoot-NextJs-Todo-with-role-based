@@ -37,6 +37,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http){
         http.csrf(customizer->customizer.disable())
+                .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(request-> request
                 .requestMatchers("/register","/login")
                         .permitAll()

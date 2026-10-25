@@ -17,4 +17,5 @@ public class ResponseDto {
     private String title;
     private String content;
     private LocalDate doDate;
+    private boolean isDone;
 }

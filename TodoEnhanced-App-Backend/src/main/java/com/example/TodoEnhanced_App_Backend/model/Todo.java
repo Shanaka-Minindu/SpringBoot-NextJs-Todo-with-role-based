@@ -20,7 +20,6 @@ public class Todo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="userId",nullable = false)
     private User user;
@@ -33,4 +32,7 @@ public class Todo {
 
     @Column(nullable = false)
     private LocalDate targetDate;
+
+    @Column(nullable = false)
+    private boolean isDone;
 }

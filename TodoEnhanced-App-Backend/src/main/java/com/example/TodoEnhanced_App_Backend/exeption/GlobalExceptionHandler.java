@@ -39,6 +39,13 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
     }
 
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Map<String,Object>> ResourceNotFoundException(ResourceNotFoundException ex){
+        return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+
+
     private ResponseEntity<Map<String,Object>> buildErrorResponse(HttpStatus status, String message){
         Map<String,Object> error  = new HashMap<>();
         error.put("timestamo",LocalDateTime.now());

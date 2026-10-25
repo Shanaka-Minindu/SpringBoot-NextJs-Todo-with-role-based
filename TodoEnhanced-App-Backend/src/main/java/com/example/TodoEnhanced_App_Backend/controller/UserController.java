@@ -36,11 +36,10 @@ public class UserController {
     public ResponseEntity<UserResponseDto> userRegister(@RequestBody UserReqDto userReqDto){
 
             User user = userService.registerUser(userReqDto.getUserName(),userReqDto.getPassword());
-
+    String JwtToken = jwtService.generateToken(user.getId(),user.getUserName(),user.getRole());
             UserResponseDto userResponse = UserResponseDto.builder()
                     .role(user.getRole())
-                    .token("")
-
+                    .token(JwtToken)
                     .userName(user.getUserName())
                     .message("User Registration Success")
                     .build();
