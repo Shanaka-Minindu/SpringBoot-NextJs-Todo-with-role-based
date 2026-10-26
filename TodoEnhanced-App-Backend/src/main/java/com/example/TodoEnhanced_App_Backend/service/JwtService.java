@@ -25,15 +25,46 @@ public class JwtService {
 
         claims.put("role",role.name());
         claims.put("userId",id);
+        claims.put("tokenType", "ACCESS");
 
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(userName)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis()+1000*600*3))
+                .setExpiration(new Date(System.currentTimeMillis()+1000*60*3))
                 .signWith(getKey(), SignatureAlgorithm.HS256).compact();
 
 
+    }
+    public boolean isAccessToken(String token) {
+        try {
+            Claims claims = extractAllClaims(token);
+            return "ACCESS".equals(claims.get("tokenType"));
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public String generateRefreshToken(Integer id, String userName, Role role) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", id);
+        claims.put("role", role.name());
+        claims.put("tokenType", "REFRESH");
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(userName)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + (1000L * 60 * 60 * 24 * 7))) // 7 days
+                .signWith(getKey(), SignatureAlgorithm.HS256).compact();
+    }
+    public boolean isRefreshToken(String token) {
+        try {
+            Claims claims = extractAllClaims(token);
+            return "REFRESH".equals(claims.get("tokenType"));
+        } catch (Exception e) {
+            return false;
+        }
     }
 
 private Key getKey(){

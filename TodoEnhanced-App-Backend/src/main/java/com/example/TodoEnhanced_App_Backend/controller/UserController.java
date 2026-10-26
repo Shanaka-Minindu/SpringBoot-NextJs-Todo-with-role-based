@@ -5,6 +5,7 @@ import com.example.TodoEnhanced_App_Backend.exeption.UsernameNotFoundException;
 import com.example.TodoEnhanced_App_Backend.model.Role;
 import com.example.TodoEnhanced_App_Backend.model.User;
 import com.example.TodoEnhanced_App_Backend.model.UserPrincipal;
+import com.example.TodoEnhanced_App_Backend.model.dto.RefreshRequestDto;
 import com.example.TodoEnhanced_App_Backend.model.dto.UserReqDto;
 import com.example.TodoEnhanced_App_Backend.model.dto.UserResponseDto;
 import com.example.TodoEnhanced_App_Backend.service.JwtService;
@@ -36,10 +37,13 @@ public class UserController {
     public ResponseEntity<UserResponseDto> userRegister(@RequestBody UserReqDto userReqDto){
 
             User user = userService.registerUser(userReqDto.getUserName(),userReqDto.getPassword());
-    String JwtToken = jwtService.generateToken(user.getId(),user.getUserName(),user.getRole());
+
+    String accessToken = jwtService.generateToken(user.getId(), user.getUserName(), user.getRole());
+    String refreshToken = jwtService.generateRefreshToken(user.getId(), user.getUserName(), user.getRole());
             UserResponseDto userResponse = UserResponseDto.builder()
                     .role(user.getRole())
-                    .token(JwtToken)
+                    .token(accessToken)
+                    .refreshToken(refreshToken)
                     .userName(user.getUserName())
                     .message("User Registration Success")
                     .build();
@@ -57,14 +61,16 @@ public class UserController {
 
         String uname = userPrincipal.getUsername();
         Role role = userPrincipal.getUser().getRole();
+        Integer userId = userPrincipal.getUser().getId();
 
-
-        String JwtToken = jwtService.generateToken(userPrincipal.getUser().getId(),uname,role);
+        String accessToken = jwtService.generateToken(userId, uname, role);
+        String refreshToken = jwtService.generateRefreshToken(userId, uname, role);
 
         UserResponseDto userResponseDto = UserResponseDto.builder()
                 .role(role)
                 .userName(uname)
-                .token(JwtToken)
+                .token(accessToken)
+                .refreshToken(refreshToken)
                 .message("Logging Success")
                 .build();
         return new  ResponseEntity<>(userResponseDto, HttpStatus.OK);
@@ -72,6 +78,33 @@ public class UserController {
 
     throw new  UsernameNotFoundException("Please check your credentials");
 }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<UserResponseDto> refreshToken(@RequestBody RefreshRequestDto requestDto) {
+        String refreshToken = requestDto.getRefreshToken();
+
+        if (refreshToken != null && jwtService.isRefreshToken(refreshToken)) {
+            String userName = jwtService.extractUserName(refreshToken);
+            Integer userId = jwtService.extractUserId(refreshToken);
+            String roleStr = jwtService.extractUserRole(refreshToken);
+            Role role = Role.valueOf(roleStr);
+
+            // Generate a brand new short-lived Access Token
+            String newAccessToken = jwtService.generateToken(userId, userName, role);
+
+            UserResponseDto responseDto = UserResponseDto.builder()
+                    .userName(userName)
+                    .role(role)
+                    .token(newAccessToken)
+                    .refreshToken(refreshToken) // Return existing refresh token or rotate a new one
+                    .message("Token Refreshed Successfully")
+                    .build();
+
+            return new ResponseEntity<>(responseDto, HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+    }
 
 
 

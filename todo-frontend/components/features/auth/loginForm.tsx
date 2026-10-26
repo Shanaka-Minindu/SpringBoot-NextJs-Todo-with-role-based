@@ -24,7 +24,7 @@ import { redirect } from 'next/navigation';
 export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
 
-  const{setToken,setRole,role,token} = useAuthStore();
+  const{setAuth} = useAuthStore();
   const{setTodos} = useTodoStore();
 
   const {
@@ -44,8 +44,8 @@ export function LoginForm() {
       // Connect to your Spring Boot Backend endpoint (e.g., POST /auth/login)
       const response:LoginResponse = await apiClient.post('/login', data);
       
-      setToken(response.token);
-      setRole(response.role);
+
+      setAuth(response.token,response.refreshToken,response.role);
       setTodos(response.token);
       toast.success('Successfully logged in!');
       localStorage.setItem('token', response.token);

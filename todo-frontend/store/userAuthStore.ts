@@ -4,9 +4,10 @@ import { createJSONStorage, persist } from "zustand/middleware";
 
 interface UserState{
     token:string;
+    refreshToken:string;
     role: 'Admin' | 'User';
-    setToken:(token:string) =>void;
-    setRole:(role:'Admin' | 'User')=>void;
+    setAccessToken:(token:string) =>void;
+    setAuth:(token:string,refreshToken:string,role:'Admin' | 'User')=>void;
     clearAuth:()=>void;
 }
 
@@ -15,9 +16,10 @@ export const useAuthStore= create<UserState>()(
         (set) => ({
             token: "",
             role: "User",
-            setToken: (token: string) => set({ token }),
-            setRole: (role: 'Admin' | 'User') => set({ role }),
-            clearAuth: () => set({ token: "", role: "User" }),
+            refreshToken:"",
+            setAccessToken: (token: string) => set({ token }),
+            setAuth:(token, refreshToken, role)=>set({token,refreshToken,role}),
+            clearAuth: () => set({ token: "",refreshToken: "", role: "User" }),
         }),
         {
             name: 'auth-storage', // Unique key name in localStorage

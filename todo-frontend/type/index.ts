@@ -1,6 +1,7 @@
 export interface LoginResponse {
   token: string;
   role: 'Admin' | 'User';
+  refreshToken:string;
   message: string;
   userName: string;
 }

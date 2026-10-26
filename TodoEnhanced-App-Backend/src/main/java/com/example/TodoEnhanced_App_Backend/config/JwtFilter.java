@@ -38,6 +38,11 @@ public class JwtFilter extends OncePerRequestFilter {
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
                 token = authHeader.substring(7);
 
+                if (!jwtService.isAccessToken(token)) {
+                    filterChain.doFilter(request, response);
+                    return;
+                }
+
                 userName = jwtService.extractUserName(token);
                 userId = jwtService.extractUserId(token);
                 role = jwtService.extractUserRole(token);

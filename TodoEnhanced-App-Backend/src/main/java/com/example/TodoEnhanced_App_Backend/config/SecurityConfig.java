@@ -39,12 +39,12 @@ public class SecurityConfig {
         http.csrf(customizer->customizer.disable())
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(request-> request
-                .requestMatchers("/register","/login")
+                .requestMatchers("/register","/login","/refresh-token")
                         .permitAll()
                 .requestMatchers("/api/admin/**").hasRole("Admin")
                 .requestMatchers("/api/todos/**").hasAnyRole("User","Admin")
                         .anyRequest().authenticated());
-        http.httpBasic(Customizer.withDefaults());
+      //  http.httpBasic(Customizer.withDefaults());
         http.sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
     http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

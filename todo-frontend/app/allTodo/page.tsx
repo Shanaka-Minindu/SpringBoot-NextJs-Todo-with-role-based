@@ -20,20 +20,14 @@ const AllTodos = () => {
   const { token } = useAuthStore();
 
   async function getTodosData() {
-    if (!token) return;
-
     try {
-
-
-      const data = await apiClient.get<any, Todo[]>('/api/todos', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      // The interceptor automatically handles the Bearer token!
+      const data = await apiClient.get<any, Todo[]>('/api/todos',{
+        headers: { 'Authorization': `Bearer ${token}` }
       });
-  
-      setTodos(data); // `data` is already the unwrapped array from Spring Boot
+      
+      setTodos(data); 
     } catch (error: any) {
-      console.log('Fetched Todos from API Catch:'); // Debugging log
       toast.error(error.message || 'Failed to load tasks');
     }
   }
