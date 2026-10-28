@@ -28,10 +28,7 @@ public class TodoController {
     @PostMapping
     public ResponseEntity<ResponseDto> createTodo(@RequestBody TodoRequestDto todoRequest, @AuthenticationPrincipal UserPrincipal userPrincipal){
         User user= userPrincipal.getUser();
-
-
-
-        Todo todo = new Todo();
+     Todo todo = new Todo();
         todo.setTitle(todoRequest.getTitle());
         todo.setContent(todoRequest.getContent());
         todo.setUser(user);
